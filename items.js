@@ -51,21 +51,44 @@ function ItemDAO(database) {
         * to the callback.
         *
         */
+        this.db.collection('item').aggregate([
+            { $group:{
+                _id: "$category", 
+                num: { $sum: 1 }
+            }},
+            { $sort: {
+                _id: 1
+            }}
+        ]).toArray(function(err, docs) {
+            if(err) throw err;
+            
+            if (docs.length < 1){
+                console.dir("No documents found");
+            }
+            var categories = docs;
+            var numberOfAllItems = 0;
 
-        var categories = [];
-        var category = {
-            _id: "All",
-            num: 9999
-        };
+            docs.forEach(function(element) {
+                numberOfAllItems += element.num;
+            });
+        
+            var category = {
+                _id: "All",
+                num: numberOfAllItems
+            };
 
-        categories.push(category)
+            categories.push(category);
+            
+            callback(categories);
+        });
+       
 
         // TODO-lab1A Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the categories array to the
         // callback.
-        callback(categories);
+        //callback(categories);
     }
 
 
