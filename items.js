@@ -13,11 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
 /// <reference path="typings/main.d.ts" />
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
-
 
 function ItemDAO(database) {
     "use strict";
@@ -77,20 +75,10 @@ function ItemDAO(database) {
                 num: numberOfAllItems
             };
 
-            categories.push(category);
-            
+            categories.unshift(category);
             callback(categories);
         });
-       
-
-        // TODO-lab1A Replace all code above (in this method).
-
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the categories array to the
-        // callback.
-        //callback(categories);
     }
-
 
     this.getItems = function(category, page, itemsPerPage, callback) {
         "use strict";
@@ -116,27 +104,45 @@ function ItemDAO(database) {
          * than you do for other categories.
          *
          */
-
-        var pageItem = this.createDummyItem();
+        
         var pageItems = [];
-        for (var i=0; i<5; i++) {
-            pageItems.push(pageItem);
+        var match = {"category" : category};
+        if(category == "All"){
+            match = {};
         }
 
-        // TODO-lab1B Replace all code above (in this method).
-
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the items for the selected page
-        // to the callback.
-        callback(pageItems);
+        pageItems = this.db.collection('item').aggregate([
+            { $match: match },
+            { $sort: {
+                _id: 1
+            }},
+            { $skip : page * itemsPerPage },
+            { $limit: itemsPerPage }
+        ]).toArray(function(err, docs) {
+            if(err) throw err;
+            
+            if (docs.length < 1){
+                console.dir("No documents found");
+            }
+            pageItems = docs;
+            
+            callback(pageItems);
+        });      
     }
-
 
     this.getNumItems = function(category, callback) {
         "use strict";
-
-        var numItems = 0;
-
+        var find = { "category": category};
+        if(category == "All"){
+            find = {};
+        }
+        
+        var numItems = this.db.collection('item').find(find).count(function(err, count){
+            if(err) throw err;
+            
+            numItems = count;
+            callback(numItems);
+        });
         /*
          * TODO-lab1C:
          *
@@ -151,12 +157,7 @@ function ItemDAO(database) {
          * of a call to the getNumItems() method.
          *
          */
-
-         // TODO Include the following line in the appropriate
-         // place within your code to pass the count to the callback.
-        callback(numItems);
     }
-
 
     this.searchItems = function(query, page, itemsPerPage, callback) {
         "use strict";
