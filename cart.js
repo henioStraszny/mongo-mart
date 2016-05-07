@@ -183,7 +183,10 @@ function CartDAO(database) {
         * https://docs.mongodb.org/manual/reference/operator/update/positional/
         *
         */
-
+        //TODO: Fix
+        // this.db.collection("cart").findOneAndUpdate({
+        //     userId: userId,
+        //     itemId: itemId },
         var userCart = {
             userId: userId,
             items: []
