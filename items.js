@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-
+/// <reference path="typings/main.d.ts" />
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
